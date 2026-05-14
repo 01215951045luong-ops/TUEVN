@@ -1,126 +1,110 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase' // Đảm bảo bạn đã tạo file này
 import useSWR from 'swr'
-import axios from '@/lib/axios'
-import { useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
 
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     const router = useRouter()
-    const params = useParams()
 
-    const { data: user, error, mutate } = useSWR('/api/user', () =>
-        axios
-            .get('/api/user')
-            .then(res => res.data)
-            .catch(error => {
-                if (error.response.status !== 409) throw error
+    // 1. Dùng SWR để quản lý state user từ Supabase
+    const { data: user, error, mutate } = useSWR('supabase-user', async () => {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        if (error) throw error
+        return session?.user || null
+    })
 
-                router.push('/verify-email')
-            }),
-    )
+    const loading = !user && !error
 
-    const csrf = () => axios.get('/sanctum/csrf-cookie')
-
+    // 2. Hàm Đăng ký
     const register = async ({ setErrors, ...props }) => {
-        await csrf()
-
         setErrors([])
+        const { error } = await supabase.auth.signUp({
+            email: props.email,
+            password: props.password,
+            options: {
+                data: {
+                    name: props.name, // Lưu thêm tên nếu cần
+                },
+            },
+        })
 
-        axios
-            .post('/register', props)
-            .then(() => mutate())
-            .catch(error => {
-                if (error.response.status !== 422) throw error
-
-                setErrors(error.response.data.errors)
-            })
+        if (error) {
+            setErrors({ email: [error.message] })
+        } else {
+            mutate()
+        }
     }
 
+    // 3. Hàm Đăng nhập
     const login = async ({ setErrors, setStatus, ...props }) => {
-        await csrf()
-
         setErrors([])
         setStatus(null)
+        
+        const { error } = await supabase.auth.signInWithPassword({
+            email: props.email,
+            password: props.password,
+        })
 
-        axios
-            .post('/login', props)
-            .then(() => mutate())
-            .catch(error => {
-                if (error.response.status !== 422) throw error
-
-                setErrors(error.response.data.errors)
-            })
+        if (error) {
+            setErrors({ email: ["Email hoặc mật khẩu không chính xác"] })
+        } else {
+            mutate()
+        }
     }
 
+    // 4. Hàm Quên mật khẩu
     const forgotPassword = async ({ setErrors, setStatus, email }) => {
-        await csrf()
-
         setErrors([])
         setStatus(null)
-
-        axios
-            .post('/forgot-password', { email })
-            .then(response => setStatus(response.data.status))
-            .catch(error => {
-                if (error.response.status !== 422) throw error
-
-                setErrors(error.response.data.errors)
-            })
+        const { error } = await supabase.auth.resetPasswordForEmail(email)
+        
+        if (error) {
+            setErrors({ email: [error.message] })
+        } else {
+            setStatus("Link đặt lại mật khẩu đã được gửi tới email của bạn.")
+        }
     }
 
-    const resetPassword = async ({ setErrors, setStatus, ...props }) => {
-        await csrf()
-
-        setErrors([])
-        setStatus(null)
-
-        axios
-            .post('/reset-password', { token: params.token, ...props })
-            .then(response =>
-                router.push('/login?reset=' + btoa(response.data.status)),
-            )
-            .catch(error => {
-                if (error.response.status !== 422) throw error
-
-                setErrors(error.response.data.errors)
-            })
-    }
-
-    const resendEmailVerification = ({ setStatus }) => {
-        axios
-            .post('/email/verification-notification')
-            .then(response => setStatus(response.data.status))
-    }
-
+    // 5. Hàm Đăng xuất
     const logout = async () => {
-        if (!error) {
-            await axios.post('/logout').then(() => mutate())
+        await supabase.auth.signOut()
+        mutate(null)
+        router.push('/login')
+    }
+
+    // 6. Xử lý Middleware (Chặn truy cập)
+    useEffect(() => {
+        // Nếu là khách mà đã đăng nhập -> Chuyển về trang được chỉ định (vd: /dashboard)
+        if (middleware === 'guest' && redirectIfAuthenticated && user) {
+            router.push(redirectIfAuthenticated)
         }
 
-        window.location.pathname = '/login'
-    }
-
-    useEffect(() => {
-        if (middleware === 'guest' && redirectIfAuthenticated && user)
-            router.push(redirectIfAuthenticated)
-
-        if (middleware === 'auth' && (user && !user.email_verified_at))
-            router.push('/verify-email')
+        // Nếu yêu cầu đăng nhập mà không có user (hoặc lỗi) -> Chuyển về /login
+        if (middleware === 'auth' && error) {
+            router.push('/login')
+        }
         
-        if (
-            window.location.pathname === '/verify-email' &&
-            user?.email_verified_at
+        // Theo dõi trạng thái auth thay đổi (đăng nhập/đăng xuất ở tab khác)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            (event, session) => {
+                mutate(session?.user || null)
+                if (event === 'SIGNED_OUT') {
+                    router.push('/login')
+                }
+            }
         )
-            router.push(redirectIfAuthenticated)
-        if (middleware === 'auth' && error) logout()
-    }, [user, error])
+
+        return () => subscription.unsubscribe()
+    }, [user, error, middleware])
 
     return {
         user,
+        loading,
         register,
         login,
         forgotPassword,
-        resetPassword,
-        resendEmailVerification,
         logout,
     }
 }

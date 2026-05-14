@@ -1,23 +1,23 @@
+// src/app/(app)/layout.js
 'use client'
 
 import { useAuth } from '@/hooks/auth'
-import Navigation from '@/app/(app)/Navigation'
-import Loading from '@/app/(app)/Loading'
+import Header from '@/components/Header' // Đảm bảo bạn dùng Header chính ở đây
 
-const AppLayout = ({ children }) => {
+export default function AppLayout({ children }) {
     const { user } = useAuth({ middleware: 'auth' })
 
     if (!user) {
-        return <Loading />
+        return null // Hoặc loading spinner
     }
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <Navigation user={user} />
-
-            <main>{children}</main>
+          
+            
+            <main className="py-12">
+                {children}
+            </main>
         </div>
     )
 }
-
-export default AppLayout
