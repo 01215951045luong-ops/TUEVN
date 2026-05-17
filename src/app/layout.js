@@ -2,7 +2,7 @@
 import "./global.css"; 
 
 export const metadata = {
-  title: "TUEVN - 學越南語",
+  title: "XUEVN - 學越南語",
   description: "越南語初學者學習網站",
 };
 

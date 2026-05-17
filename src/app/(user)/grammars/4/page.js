@@ -45,7 +45,7 @@ export default function GrammarDetail() {
           onClick={() => router.back()}
           className="flex items-center text-gray-500 font-bold hover:text-black mb-8"
         >
-          ← QUAY LẠI
+          ← 回來
         </button>
 
         {/* --- NỘI DUNG NGỮ PHÁP (GIỮ NGUYÊN GIAO DIỆN BẠN ĐÃ THIẾT KẾ) --- */}
@@ -126,8 +126,8 @@ export default function GrammarDetail() {
       </div>
       <div className="grid grid-cols-1 gap-4">
         <div className="p-5 bg-white border-2 border-orange-100 rounded-2xl">
-          <p className="text-xl font-black text-gray-800">Các bạn <span className="text-orange-600">có</span> cà phê ngon <span className="text-orange-600">không</span>?</p>
-          <p className="text-xl text-gray-400 mt-1 italic">你們有沒有好喝的咖啡？</p>
+          <p className="text-xl font-black text-gray-800">Các bạn <span className="text-orange-600">có</span> cà phê <span className="text-orange-600">không</span>?</p>
+          <p className="text-xl text-gray-400 mt-1 italic">你們有沒有咖啡？</p>
         </div>
         <div className="p-5 bg-white border-2 border-orange-100 rounded-2xl">
           <p className="text-xl font-black text-gray-800">Cậu <span className="text-orange-600">có</span> mấy tấm ảnh?</p>

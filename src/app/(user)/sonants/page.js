@@ -5,7 +5,9 @@ import { supabase } from '@/lib/supabase'; // Đảm bảo bạn đã tạo file
 
 export default function SonantPage() {
     const [sonants, setSonants] = useState([]);
-    const [loading, setLoading] = useState(true);
+   const [loading, setLoading] = useState(true);
+    const audioRef = typeof window !== 'undefined' ? require('react').useRef(null) : null; // Thêm dòng này để quản lý audio hiện tại
+    
 
     // Tên Bucket trên Supabase Storage
     const BUCKET_NAME = 'sonants_assets';
@@ -29,6 +31,11 @@ export default function SonantPage() {
         };
 
         fetchSonants();
+        return () => {
+        if (audioRef && audioRef.current) {
+            audioRef.current.pause();
+        }
+        };
     }, []);
 
     // Hàm lấy URL ảnh/âm thanh từ Supabase Storage
@@ -40,12 +47,34 @@ export default function SonantPage() {
     };
 
     const playSound = (audioPath) => {
-        if (!audioPath) return;
-        const url = getMediaUrl(audioPath);
-        const audio = new Audio(url);
-        audio.currentTime = 0;
-        audio.play().catch(e => console.error("Lỗi phát âm thanh:", e));
-    };
+    if (!audioPath) return;
+
+    // 1. Nếu có âm thanh đang tồn tại, dừng nó lại
+    if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+    }
+
+    const url = getMediaUrl(audioPath);
+    const newAudio = new Audio(url);
+    audioRef.current = newAudio;
+
+    // 2. Xử lý Promise của play() để tránh lỗi AbortError của trình duyệt
+    const playPromise = newAudio.play();
+
+    if (playPromise !== undefined) {
+        playPromise
+            .then(() => {
+                // Âm thanh đã bắt đầu phát thành công, không làm gì cả
+            })
+            .catch(error => {
+                // Bắt các lỗi hủy phát nhạc ngầm khi người dùng bấm quá nhanh
+                if (error.name !== 'AbortError') {
+                    console.error("Lỗi phát âm thanh thật sự:", error);
+                }
+            });
+    }
+};
 
     // --- CHIA DỮ LIỆU THÀNH CÁC NHÓM ---
     const alphabetList = sonants.slice(0, 29); 
@@ -124,7 +153,7 @@ export default function SonantPage() {
                         
                         <div className="mt-4 text-lg text-gray-600">
                             <span className="font-semibold text-blue-600 mr-2">例子:</span> 
-                            ghi chép (記錄), ghi nhớ (記住), kim ghim (別針)
+                            ghi chép (記錄), ghi nhớ (記住)
                         </div>
                         </div>
 
@@ -220,7 +249,7 @@ export default function SonantPage() {
                     </div>
                     <div className="mt-4 text-lg text-gray-600">
                         <span className="font-semibold text-blue-600 mr-2">例子:</span> 
-                        đi (去), tim (心臟), im (安靜)
+                        đi (去), tim (心臟), im lặng(安靜)
                     </div>
                     </div>
 
@@ -274,7 +303,7 @@ export default function SonantPage() {
 
                         <div className="mt-4 text-lg text-gray-600">
                             <span className="font-semibold text-blue-600 mr-2">例子:</span>
-                            sinh viên (學生), sáng tạo (創造), sạch sẽ (乾淨)
+                            sinh viên (大學生), sáng tạo (創造), sạch sẽ (乾淨)
                         </div>
                         </div>
 
