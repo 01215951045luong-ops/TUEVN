@@ -9,6 +9,13 @@ const Header = () => {
   const { user, logout } = useAuth();
   const userMenuRef = useRef(null);
 
+  // Lấy tên hiển thị an toàn từ Supabase Metadata hoặc Email
+  // Điều này giải quyết vấn đề liên kết 'displayname' bạn mong muốn
+  const displayName = user?.user_metadata?.display_name || 
+                      user?.user_metadata?.full_name || 
+                      user?.email?.split('@')[0] || 
+                      'Người dùng';
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
@@ -66,25 +73,23 @@ const Header = () => {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center gap-2 text-lg font-bold text-gray-700 hover:text-orange-500 transition-all focus:outline-none"
                 >
-                  <div className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center text-sm shadow-md font-bold">
-                    {user.name?.charAt(0).toUpperCase()}
+                  <div className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center text-sm shadow-md font-bold uppercase">
+                    {displayName.charAt(0)}
                   </div>
-                  <span>你好, {user.name}</span>
+                  <span>你好, {displayName}</span>
                   <i className={`ri-arrow-down-s-line transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`}></i>
                 </button>
 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+                  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-fadeIn">
                     <div className="p-4 border-b border-gray-50 bg-gray-50/50">
-                      <p className="font-black text-gray-800">{user.name}</p>
+                      <p className="font-black text-gray-800">{displayName}</p>
                       <p className="text-sm text-gray-400 truncate">{user.email}</p>
                     </div>
                     <div className="py-2">
                       <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition-colors">
                         <i className="ri-dashboard-line"></i> 帳戶總覽 (Dashboard)
                       </Link>
-                      
-                      {/* --- THÊM MỤC NÀY --- */}
                       <Link href="/my-vocab" className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-teal-50 hover:text-teal-600 transition-colors">
                         <i className="ri-book-mark-line"></i> 我的詞彙 (My Vocab)
                       </Link>
@@ -100,7 +105,7 @@ const Header = () => {
             ) : (
               <div className="flex items-center gap-4">
                 <Link href="/register" className="text-lg font-black text-gray-500 hover:text-gray-800 transition-colors">註冊</Link>
-                <Link href="/login"className="px-6 py-2.5 bg-black text-white rounded-2xl font-black text-lg shadow-lg hover:bg-gray-800 transition-all">登入</Link>
+                <Link href="/login" className="px-6 py-2.5 bg-black text-white rounded-2xl font-black text-lg shadow-lg hover:bg-gray-800 transition-all">登入</Link>
               </div>
             )}
           </div>
@@ -127,16 +132,15 @@ const Header = () => {
               {user ? (
                 <div className="flex flex-col gap-4">
                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl">
-                      <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center text-xl font-bold">
-                        {user.name?.charAt(0).toUpperCase()}
+                      <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center text-xl font-bold uppercase">
+                        {displayName.charAt(0)}
                       </div>
                       <div>
-                        <p className="font-black text-gray-800">Chào, {user.name}!</p>
+                        <p className="font-black text-gray-800">Chào, {displayName}!</p>
                         <p className="text-sm text-gray-500 truncate w-48">{user.email}</p>
                       </div>
                    </div>
                    
-                   {/* Thêm link vào Mobile */}
                    <Link href="/my-vocab" onClick={() => setIsOpen(false)} className="w-full py-4 text-center text-xl font-black text-teal-600 bg-teal-50 rounded-2xl">
                       我的詞彙 (My Vocab)
                    </Link>

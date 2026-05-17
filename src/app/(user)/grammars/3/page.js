@@ -9,25 +9,6 @@ export default function GrammarDetail() {
 
   // Vì folder của bạn tên là "1" nên ta cố định id này để fetch đúng bài 1
   const id = "3"; 
-
-  useEffect(() => {
-    // Gọi đến API Laravel đã chạy thành công của bạn
-    fetch(`http://127.0.0.1:8000/api/grammars/${id}`)
-      .then(res => {
-        if (!res.ok) throw new Error("Lỗi Server");
-        return res.json();
-      })
-      .then(data => {
-        console.log("Dữ liệu từ database:", data);
-        setExamples(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Lỗi kết nối API:", err);
-        setLoading(false);
-      });
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 md:px-8">
       <div className="max-w-4xl mx-auto">

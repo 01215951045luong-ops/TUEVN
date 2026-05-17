@@ -97,7 +97,7 @@ export default function EditSonantPage() {
       if (dbError) throw dbError;
 
       alert("🎉 Cập nhật thành công!");
-      router.push('/admin/sonants/list'); // Đã sửa lỗi route số nhiều
+      router.push('/admin/sonant/list'); // Đã sửa lỗi route số nhiều
     } catch (err) {
       alert("❌ Lỗi: " + err.message);
     } finally {
