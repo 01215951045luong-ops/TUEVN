@@ -18,7 +18,7 @@ export default function EditSonantPage() {
     image: ''
   });
 
-  // 1. Fetch dữ liệu từ database
+  // 1. 讀取原有子音資料
   useEffect(() => {
     const fetchCurrentSonant = async () => {
       const { data, error } = await supabase
@@ -34,16 +34,15 @@ export default function EditSonantPage() {
           image: data.image || ''
         });
       } else {
-        alert("Không tìm thấy dữ liệu phụ âm này!");
-        router.push('/admin/sonants/list');
+        alert("找不到該子音資料！");
+        router.push('/admin/sonant/list');
       }
     };
     
-    // Đã sửa lỗi gọi sai tên hàm (fetchCurrentSonant)
     fetchCurrentSonant(); 
   }, [id, router]);
 
-  // 2. Xử lý Xem trước file (Preview)
+  // 2. 處理檔案預覽 (Preview)
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -60,7 +59,15 @@ export default function EditSonantPage() {
     }
   };
 
-  // 3. Xử lý Cập nhật
+  // 釋放記憶體暫存 URL
+  useEffect(() => {
+    return () => {
+      if (previewImg) URL.revokeObjectURL(previewImg);
+      if (previewAudio) URL.revokeObjectURL(previewAudio);
+    };
+  }, [previewImg, previewAudio]);
+
+  // 3. 處理更新提交
   const handleUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -96,33 +103,33 @@ export default function EditSonantPage() {
 
       if (dbError) throw dbError;
 
-      alert("🎉 Cập nhật thành công!");
-      router.push('/admin/sonant/list'); // Đã sửa lỗi route số nhiều
+      alert(" 資料更新成功！");
+      router.push('/admin/sonant/list');
     } catch (err) {
-      alert("❌ Lỗi: " + err.message);
+      alert("X 錯誤: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 mt-8">
+    <div className="max-w-3xl mx-auto p-6 mt-8 text-left">
       <div className="flex items-center justify-between mb-8 border-b-4 border-indigo-500 pb-4">
         <div>
           <h1 className="text-3xl font-black text-slate-800 uppercase tracking-tighter">
-            Chỉnh sửa Phụ âm
+            修改子音字母
           </h1>
         </div>
         <button onClick={() => router.back()} className="text-slate-400 hover:text-indigo-600 font-bold text-xs uppercase transition-colors">
-          ← Quay lại
+          ← 返回
         </button>
       </div>
 
       <form onSubmit={handleUpdate} className="space-y-8 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-slate-50">
         
-        {/* Nhập ký hiệu âm */}
+        {/* 輸入字母符號 */}
         <div className="text-center space-y-2">
-          <label className="text-[20px] font-black text-indigo-400 uppercase tracking-[0.3em]">Ký hiệu âm</label>
+          <label className="text-[20px] font-black text-indigo-400 uppercase tracking-[0.3em]">子音字母符號</label>
           <input 
             className="w-full text-8xl font-black text-center text-slate-800 border-b-4 border-slate-50 focus:border-indigo-500 outline-none transition-all py-4 focus:bg-indigo-50/20 rounded-3xl" 
             value={form.name} 
@@ -132,9 +139,9 @@ export default function EditSonantPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Cột Ảnh */}
+          {/* 圖片管理區塊 */}
           <div className="flex flex-col items-center p-6 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-            <span className="text-[20px] font-black text-slate-400 uppercase mb-4 tracking-widest">Hình ảnh</span>
+            <span className="text-[20px] font-black text-slate-400 uppercase mb-4 tracking-widest">示範圖片</span>
             <img 
               src={previewImg || form.image || 'https://via.placeholder.com/150'} 
               className="w-32 h-32 object-cover rounded-2xl shadow-md border-4 border-white mb-4" 
@@ -142,33 +149,34 @@ export default function EditSonantPage() {
             />
             <input type="file" id="img-up" accept="image/*" onChange={handleImageChange} className="hidden" />
             <label htmlFor="img-up" className="cursor-pointer bg-white px-4 py-2 rounded-full text-[20px] font-black text-indigo-600 shadow hover:bg-indigo-600 hover:text-white transition-all uppercase border border-indigo-100">
-              Chọn ảnh mới
+              變更圖片
             </label>
           </div>
 
-          {/* Cột Audio - ĐÃ SỬA LỖI EMPTY STRING */}
+          {/* 音檔管理區塊 */}
           <div className="flex flex-col items-center p-6 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-            <span className="text-[20px] font-black text-slate-400 uppercase mb-4 tracking-widest">Âm thanh</span>
+            <span className="text-[20px] font-black text-slate-400 uppercase mb-4 tracking-widest">發音音檔</span>
             <div className="w-full bg-white p-4 rounded-xl shadow-inner mb-4 min-h-[60px] flex items-center">
               {(previewAudio || form.audio) ? (
                 <audio src={previewAudio || form.audio} controls className="w-full h-8" />
               ) : (
-                <p className="w-full text-center text-[20px] text-slate-300 font-bold italic uppercase">Trống</p>
+                <p className="w-full text-center text-[20px] text-slate-300 font-bold italic uppercase">目前無音檔</p>
               )}
             </div>
             <input type="file" id="audio-up" accept="audio/*" onChange={handleAudioChange} className="hidden" />
             <label htmlFor="audio-up" className="cursor-pointer bg-white px-4 py-2 rounded-full text-[20px] font-black text-emerald-600 shadow hover:bg-emerald-600 hover:text-white transition-all uppercase border border-emerald-100">
-              Chọn Audio mới
+              變更音檔
             </label>
           </div>
         </div>
 
+        {/* 提交按鈕 */}
         <button 
           type="submit" 
           disabled={loading} 
           className={`w-full p-5 rounded-2xl text-white font-black text-xl shadow-xl transition-all transform active:scale-95 ${loading ? 'bg-slate-300 cursor-not-allowed' : 'bg-gradient-to-r from-indigo-600 to-blue-600 hover:shadow-indigo-200'}`}
         >
-          {loading ? "ĐANG LƯU DỮ LIỆU..." : "XÁC NHẬN LƯU THAY ĐỔI"}
+          {loading ? "資料更新中..." : "確認修改"}
         </button>
       </form>
     </div>

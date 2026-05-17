@@ -46,7 +46,7 @@ export default function GrammarDetail() {
           onClick={() => router.back()}
           className="flex items-center text-gray-500 font-bold hover:text-black mb-8"
         >
-          ← 回來
+          ← 返回
         </button>
 
         {/* --- PHẦN NỘI DUNG NGỮ PHÁP (GIỮ NGUYÊN GIAO DIỆN CỦA BẠN) --- */}

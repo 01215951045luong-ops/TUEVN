@@ -8,11 +8,13 @@ const Footer = () => {
         {/* Cột 1 */}
         <div className="footer-item">
           <p className="font-bold text-[18px] mb-[20px] text-gray-800">越南語基礎學習網站</p>
-          <a href="/sonant" className="block text-[15px] font-light leading-[35px] text-gray-600 hover:text-teal-600 transition-colors" style={{ textDecoration: 'none' }}>
+          <a href="/sonants" className="block text-[15px] font-light leading-[35px] text-gray-600 hover:text-teal-600 transition-colors" style={{ textDecoration: 'none' }}>
             發音字母
           </a>
-          <p className="text-[15px] font-light leading-[35px] text-gray-600">詞彙</p>
-          <p className="text-[15px] font-light leading-[35px] text-gray-600">文法</p>
+           <a href="/vocabularies" className="block text-[15px] font-light leading-[35px] text-gray-600 hover:text-teal-600 transition-colors" style={{ textDecoration: 'none' }}>
+           詞彙</a>
+           <a href="/grammars" className="block text-[15px] font-light leading-[35px] text-gray-600 hover:text-teal-600 transition-colors" style={{ textDecoration: 'none' }}>
+           語法</a>
         </div>
 
         {/* Cột 2 */}

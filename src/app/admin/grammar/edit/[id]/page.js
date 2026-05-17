@@ -15,7 +15,7 @@ export default function EditGrammarPage() {
     sentence_cn: ''
   });
 
-  // 1. Lấy dữ liệu hiện tại từ database grammars
+  // 1. 從 grammars 資料表讀取目前的資料
   useEffect(() => {
     const fetchGrammar = async () => {
       setFetching(true);
@@ -32,7 +32,7 @@ export default function EditGrammarPage() {
           sentence_cn: data.sentence_cn || ''
         });
       } else {
-        alert("❌ Không tìm thấy dữ liệu ngữ pháp này!");
+        alert("X 找不到此筆語法資料！");
         router.push('/admin/grammar/list');
       }
       setFetching(false);
@@ -41,7 +41,7 @@ export default function EditGrammarPage() {
     if (id) fetchGrammar(); 
   }, [id, router]);
 
-  // 2. Xử lý Cập nhật văn bản
+  // 2. 處理文字更新
   const handleUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -58,33 +58,33 @@ export default function EditGrammarPage() {
 
       if (dbError) throw dbError;
 
-      alert("🎉 Cập nhật ngữ pháp thành công!");
+      alert(" 語法資料更新成功！");
       router.push('/admin/grammar/list'); 
     } catch (err) {
-      alert("❌ Lỗi cập nhật: " + err.message);
+      alert(" X 更新失敗: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (fetching) return <div className="text-center p-20 font-bold animate-bounce">ĐANG TẢI DỮ LIỆU...</div>;
+  if (fetching) return <div className="text-center p-20 font-bold animate-bounce text-slate-500 tracking-widest">資料載入中...</div>;
 
   return (
     <div className="max-w-3xl mx-auto p-6 mt-8">
       <div className="flex items-center justify-between mb-8 border-b-4 border-emerald-500 pb-4">
         <h1 className="text-3xl font-black text-slate-800 uppercase tracking-tighter">
-          Chỉnh sửa Ngữ pháp
+          修改語法教學
         </h1>
         <button onClick={() => router.back()} className="text-slate-400 hover:text-emerald-600 font-bold text-xs uppercase transition-colors">
-          ← Quay lại
+          ← 返回
         </button>
       </div>
 
       <form onSubmit={handleUpdate} className="space-y-8 bg-white p-8 rounded-[2.5rem] shadow-2xl border border-slate-50">
         
-        {/* Số bài học */}
+        {/* 課堂編號 */}
         <div className="space-y-2">
-          <label className="text-xl font-black text-emerald-600 uppercase tracking-[0.2em] ml-2">Bài học số</label>
+          <label className="text-xl font-black text-emerald-600 uppercase tracking-[0.2em] ml-2">課堂編號</label>
           <input 
             type="number"
             className="w-full text-4xl font-black text-emerald-700 bg-slate-50 border-4 border-transparent focus:border-emerald-500 outline-none transition-all p-4 rounded-3xl shadow-inner" 
@@ -94,9 +94,9 @@ export default function EditGrammarPage() {
           />
         </div>
 
-        {/* Câu Tiếng Việt */}
+        {/* 越南文句子 */}
         <div className="space-y-2">
-          <label className="text-xl font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Câu Tiếng Việt (sentence_vn)</label>
+          <label className="text-xl font-black text-slate-400 uppercase tracking-[0.2em] ml-2">越南文句子 (sentence_vn)</label>
           <textarea 
             rows="4"
             className="w-full text-lg font-bold text-slate-800 bg-slate-50 border-4 border-transparent focus:border-emerald-500 outline-none transition-all p-5 rounded-3xl shadow-inner" 
@@ -106,9 +106,9 @@ export default function EditGrammarPage() {
           />
         </div>
 
-        {/* Câu Tiếng Trung */}
+        {/* 中文翻譯 */}
         <div className="space-y-2">
-          <label className="text-xl font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Câu Tiếng Trung (sentence_cn)</label>
+          <label className="text-xl font-black text-slate-400 uppercase tracking-[0.2em] ml-2">中文翻譯 (sentence_cn)</label>
           <textarea 
             rows="4"
             className="w-full text-lg font-bold text-slate-500 italic bg-slate-50 border-4 border-transparent focus:border-emerald-500 outline-none transition-all p-5 rounded-3xl shadow-inner" 
@@ -127,7 +127,7 @@ export default function EditGrammarPage() {
               : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100'
           }`}
         >
-          {loading ? "ĐANG LƯU THAY ĐỔI..." : "XÁC NHẬN CẬP NHẬT"}
+          {loading ? "資料儲存中..." : "確認更新"}
         </button>
       </form>
     </div>

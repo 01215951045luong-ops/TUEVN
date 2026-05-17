@@ -4,7 +4,6 @@ import { handleSaveVocab } from '@/lib/supabaseServices'
 import { useRouter } from 'next/navigation'
 
 export default function AddVocabPage() {
-  // KHẮC PHỤC LỖI image_2c9f36.png: Luôn để giá trị mặc định là chuỗi rỗng ''
   const [form, setForm] = useState({ 
     vocabulary_vn: '', 
     vocabulary_cn: '', 
@@ -17,7 +16,7 @@ export default function AddVocabPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Xử lý khi chọn file âm thanh
+  // 處理音檔選擇
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -27,24 +26,24 @@ export default function AddVocabPage() {
     }
   };
 
-  // Thu hồi bộ nhớ URL tạm
+  // 釋放記憶體暫存 URL
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
 
-  // Xử lý gửi dữ liệu
+  // 處理表單提交
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Gọi service lưu vào Supabase
+      // 呼叫 service 儲存至 Supabase
       await handleSaveVocab(form, file);
       
-      alert("🎉 Đã thêm thành công! Mời bạn nhập từ tiếp theo.");
+      alert(" 新增成功！請繼續輸入下一個單字。");
 
-      // RESET FORM: Đưa tất cả về rỗng để nhập tiếp mà không cần chuyển trang
+      // 重設表單：將所有欄位清空以便繼續輸入
       setForm({ 
         vocabulary_vn: '', 
         vocabulary_cn: '', 
@@ -54,55 +53,55 @@ export default function AddVocabPage() {
       setFile(null);
       setPreviewUrl(null);
       
-      // Reset input file trên giao diện
+      // 重設畫面的檔案輸入框
       e.target.reset(); 
 
     } catch (err) {
-      alert("❌ Lỗi: " + err.message);
+      alert("X 錯誤: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 mt-10">
-      <div className="mb-8 border-b-4 border-indigo-600 pb-4">
+    <div className="max-w-4xl mx-auto p-4 mt-10 text-left">
+      <div className="mb-8 border-b-4 border-indigo-600 pb-4 text-center">
         <h1 className="text-4xl font-black text-slate-800 tracking-tight uppercase">
-          Thêm Từ Vựng Mới
+          新增單字資料
         </h1>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 space-y-8">
         
-        {/* Phần 1: Nội dung chính (Từ vựng) */}
+        {/* 部分 1：核心內容 (單字) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-bold text-blue-600 uppercase ml-1">🇻🇳 Tiếng Việt</label>
+            <label className="text-sm font-bold text-blue-600 uppercase ml-1">🇻🇳 越南文單字</label>
             <input 
               className="w-full border-2 border-slate-200 p-4 rounded-xl focus:border-blue-500 outline-none transition-all text-lg shadow-sm" 
-              placeholder="Ví dụ: Xin chào" 
-              value={form.vocabulary_vn} // Controlled input
+              placeholder="例如：Xin chào" 
+              value={form.vocabulary_vn} 
               onChange={e => setForm({...form, vocabulary_vn: e.target.value})} 
               required 
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-bold text-red-600 uppercase ml-1">🇹🇼 Tiếng Trung</label>
+            <label className="text-sm font-bold text-red-600 uppercase ml-1">🇹🇼 中文翻譯</label>
             <input 
               className="w-full border-2 border-slate-200 p-4 rounded-xl focus:border-red-500 outline-none transition-all text-lg font-medium shadow-sm" 
-              placeholder="Ví dụ: 你好" 
-              value={form.vocabulary_cn} // Controlled input
+              placeholder="例如：你好" 
+              value={form.vocabulary_cn} 
               onChange={e => setForm({...form, vocabulary_cn: e.target.value})} 
               required 
             />
           </div>
         </div>
 
-        {/* Phần 2: Âm thanh & Nghe thử */}
-        <div className="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-300">
+        {/* 部分 2：發音音檔 & 試聽 */}
+        <div className="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-300 text-left">
           <div className="flex items-center justify-between mb-4">
-            <label className="text-lg font-bold text-slate-800 uppercase">Tệp phát âm</label>
-            {file && <span className="text-xs bg-green-500 text-white px-3 py-1 rounded-full font-bold uppercase">Sẵn sàng</span>}
+            <label className="text-lg font-bold text-slate-800 uppercase">上傳發音音檔</label>
+            {file && <span className="text-xs bg-green-500 text-white px-3 py-1 rounded-full font-bold uppercase">檔案已就緒</span>}
           </div>
 
           <input 
@@ -114,47 +113,47 @@ export default function AddVocabPage() {
 
           {previewUrl && (
             <div className="mt-6 p-4 bg-white rounded-xl border border-slate-200 shadow-sm animate-in fade-in duration-500">
-              <p className="text-xs font-black text-slate-400 mb-2 uppercase tracking-widest">Nghe thử:</p>
+              <p className="text-xs font-black text-slate-400 mb-2 uppercase tracking-widest">發音試聽：</p>
               <audio src={previewUrl} controls className="w-full h-10" />
             </div>
           )}
         </div>
 
-        {/* Phần 3: Ví dụ minh họa */}
+        {/* 部分 3：例句說明 */}
         <div className="space-y-4">
-          <label className="text-sm font-bold text-slate-700 block ml-1 uppercase">Câu ví dụ minh họa</label>
+          <label className="text-sm font-bold text-slate-700 block ml-1 uppercase">應用例句對照</label>
           <textarea 
             rows="2"
             className="w-full border-2 border-slate-100 p-4 rounded-xl focus:border-blue-400 outline-none transition-all bg-slate-50/50 shadow-inner" 
-            placeholder="Câu ví dụ bằng Tiếng Việt..." 
+            placeholder="請輸入越南文應用例句..." 
             value={form.sentence_vn}
             onChange={e => setForm({...form, sentence_vn: e.target.value})} 
           />
           <textarea 
             rows="2"
             className="w-full border-2 border-slate-100 p-4 rounded-xl focus:border-red-400 outline-none transition-all bg-slate-50/50 shadow-inner" 
-            placeholder="Câu ví dụ bằng Tiếng Trung..." 
+            placeholder="請輸入對應 welfare 的中文翻譯例句..." 
             value={form.sentence_cn}
             onChange={e => setForm({...form, sentence_cn: e.target.value})} 
           />
         </div>
 
-        {/* Nút bấm */}
+        {/* 按鈕區塊 */}
         <div className="flex gap-4 pt-4">
           <button 
             type="submit" 
             disabled={loading} 
             className={`flex-[2] p-5 rounded-2xl text-white font-black text-xl shadow-lg transition-all transform active:scale-95 ${loading ? 'bg-slate-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:shadow-indigo-200'}`}
           >
-            {loading ? "ĐANG LƯU..." : "XÁC NHẬN LƯU"}
+            {loading ? "資料儲存中..." : "確認儲存"}
           </button>
           
           <button 
             type="button"
             onClick={() => router.push('/admin/vocabulary/list')}
-            className="flex-1 px-4 py-5 rounded-2xl border-2 border-slate-200 text-slate-500 font-bold hover:bg-slate-100 transition-all uppercase text-sm"
+            className="flex-1 px-4 py-5 rounded-2xl border-2 border-slate-200 text-slate-500 font-bold hover:bg-slate-100 transition-all uppercase text-sm text-center"
           >
-            Danh sách
+            返回列表
           </button>
         </div>
       </form>

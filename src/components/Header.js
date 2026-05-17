@@ -88,10 +88,10 @@ const Header = () => {
                     </div>
                     <div className="py-2">
                       <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition-colors">
-                        <i className="ri-dashboard-line"></i> 帳戶總覽 (Dashboard)
+                        <i className="ri-dashboard-line"></i> 帳戶總覽 
                       </Link>
                       <Link href="/my-vocab" className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-teal-50 hover:text-teal-600 transition-colors">
-                        <i className="ri-book-mark-line"></i> 我的詞彙 (My Vocab)
+                       <i className="ri-book-2-line"></i>我的詞彙 
                       </Link>
                     </div>
                     <div className="border-t border-gray-50 py-2">

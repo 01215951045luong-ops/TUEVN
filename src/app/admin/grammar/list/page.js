@@ -7,26 +7,37 @@ export default function ListGrammarPage() {
   const [grammarList, setGrammarList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15; // Giảm số lượng hiển thị mỗi trang vì câu ngữ pháp thường dài
+  const itemsPerPage = 15; 
 
   useEffect(() => { fetchGrammars(); }, []);
 
   const fetchGrammars = async () => {
-    setLoading(true);
-    // Truy vấn bảng 'grammars' và sắp xếp theo bài học (lesson_no)
-    const { data } = await supabase
-      .from('grammars')
-      .select('*')
-      .order('lesson_no', { ascending: true })
-      .order('id', { ascending: true });
-    setGrammarList(data || []);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('grammars')
+        .select('*')
+        .order('lesson_no', { ascending: true })
+        .order('id', { ascending: true });
+
+      if (error) throw error;
+      setGrammarList(data || []);
+    } catch (err) {
+      console.error("讀取語法資料失敗:", err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (id) => {
-    if (confirm("Bạn có chắc chắn muốn xóa câu ngữ pháp này không?")) {
-      await supabase.from('grammars').delete().eq('id', id);
-      fetchGrammars();
+    if (confirm("您確定要刪除這條語法資料嗎？")) {
+      try {
+        const { error } = await supabase.from('grammars').delete().eq('id', id);
+        if (error) throw error;
+        fetchGrammars();
+      } catch (err) {
+        console.error("刪除失敗:", err.message);
+      }
     }
   };
 
@@ -36,97 +47,140 @@ export default function ListGrammarPage() {
   const totalPages = Math.ceil(grammarList.length / itemsPerPage);
 
   return (
-    <div className="w-full p-6 bg-[#f8fafc] min-h-screen font-sans">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-black text-slate-800 border-b-4 border-emerald-500 pb-1 uppercase tracking-tighter">
-          Quản lý Ngữ pháp
-        </h1>
-        <Link 
-          href="/admin/grammar/add" 
-          className="bg-emerald-600 text-white px-6 py-2 rounded-full font-black text-sm hover:bg-emerald-700 shadow-lg transition-all active:scale-95"
-        >
-          + THÊM MỚI
-        </Link>
-      </div>
-
-      <div className="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200">
-        <table className="w-full border-collapse text-left">
-          <thead>
-            <tr className="bg-slate-900 text-white text-[11px] font-black uppercase tracking-[0.2em]">
-              <th className="py-4 px-6 w-20 text-center">Bài</th>
-              <th className="py-4 px-6 w-1/3">Tiếng Việt (sentence_vn)</th>
-              <th className="py-4 px-6 w-1/3">Tiếng Trung (sentence_cn)</th>
-              <th className="py-4 px-6 text-center">Thao tác</th>
-            </tr>
-          </thead>
-          
-          <tbody className="divide-y divide-slate-100">
-            {loading ? (
-              <tr><td colSpan="4" className="p-20 text-center font-bold text-slate-400 animate-pulse uppercase tracking-widest">Đang tải dữ liệu...</td></tr>
-            ) : grammarList.length === 0 ? (
-              <tr><td colSpan="4" className="p-20 text-center text-slate-400 italic">Chưa có dữ liệu ngữ pháp.</td></tr>
-            ) : (
-              currentItems.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="p-6 text-center">
-                    <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-lg font-black text-lg">
-                      {item.lesson_no}
-                    </span>
-                  </td>
-                  
-                  <td className="p-6">
-                    <p className="text-slate-800 font-bold leading-relaxed text-sm">
-                      {item.sentence_vn}
-                    </p>
-                  </td>
-
-                  <td className="p-6">
-                    <p className="text-slate-500 font-medium leading-relaxed text-sm italic">
-                      {item.sentence_cn}
-                    </p>
-                  </td>
-
-                  <td className="p-6">
-                    <div className="flex gap-2 justify-center">
-                      <Link 
-                        href={`/admin/grammar/edit/${item.id}`} 
-                        className="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-blue-600 hover:text-white transition-all uppercase tracking-widest border border-blue-100"
-                      >
-                        Sửa
-                      </Link>
-                      <button 
-                        onClick={() => handleDelete(item.id)} 
-                        className="bg-red-50 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest border border-red-100"
-                      >
-                        Xóa
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Phân trang */}
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-10 gap-2">
-          {[...Array(totalPages)].map((_, i) => (
-            <button
-              key={i + 1}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`w-10 h-10 rounded-xl text-sm font-black transition-all shadow-sm ${
-                currentPage === i + 1 
-                ? 'bg-emerald-600 text-white scale-110 shadow-emerald-200' 
-                : 'bg-white text-slate-400 hover:bg-slate-100 border border-slate-200'
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
+    <div className="w-full p-4 md:p-8 bg-[#fafafa] min-h-screen font-sans text-left text-gray-900">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* 頁首標題區塊 - 風格與子音頁面完全同步 */}
+        <div className="mb-8 flex justify-between items-center border-b border-gray-200 pb-5">
+          <div>
+            <h1 className="text-3xl font-black uppercase tracking-tight text-black">
+              語法教學管理
+            </h1>
+            <p className="text-gray-400 text-xs mt-1">
+              目前系統內總計有 {grammarList.length} 條語法句子
+            </p>
+          </div>
+          <Link 
+            href="/admin/grammar/add" 
+            className="bg-black hover:bg-gray-800 text-white px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+          >
+            + 新增語法
+          </Link>
         </div>
-      )}
+
+        {/* 資料表格卡片 - 極簡黑白風格 */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200/80 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse table-fixed text-left">
+              <thead>
+                <tr className="bg-black text-white text-[15px] font-bold uppercase tracking-widest">
+                  <th className="py-4 px-6 w-20 text-center">課</th>
+                  <th className="py-4 px-6 w-[43%]">越南文句子</th>
+                  <th className="py-4 px-6 w-[43%]">中文翻譯 </th>
+                  <th className="py-4 px-4 text-center w-32">操作選項</th>
+                </tr>
+              </thead>
+              
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {loading ? (
+                  <tr>
+                    <td colSpan="4" className="p-20 text-center text-sm font-medium text-gray-400 tracking-wide animate-pulse">
+                      資料載入中...
+                    </td>
+                  </tr>
+                ) : grammarList.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="p-20 text-center text-sm font-medium text-gray-400">
+                      目前尚無任何語法資料。
+                    </td>
+                  </tr>
+                ) : (
+                  currentItems.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50/80 transition-all">
+                      {/* 課堂編號 */}
+                      <td className="p-5 text-center align-middle">
+                        <span className="inline-block bg-gray-100 text-black px-3 py-1.5 rounded-lg font-black font-mono text-base min-w-[40px]">
+                          {item.lesson_no}
+                        </span>
+                      </td>
+                      
+                      {/* 越南文內容 */}
+                      <td className="p-5 align-middle">
+                        <p className="text-black font-bold leading-relaxed text-base tracking-wide">
+                          {item.sentence_vn}
+                        </p>
+                      </td>
+
+                      {/* 中文翻譯 */}
+                      <td className="p-5 align-middle">
+                        <p className="text-gray-500 font-medium leading-relaxed text-[15px]">
+                          {item.sentence_cn}
+                        </p>
+                      </td>
+
+                      {/* 操作選項 - 已改成從上到下垂直排列 (flex-col) */}
+                      <td className="p-4 align-middle">
+                        <div className="flex flex-col gap-1.5 items-center">
+                          <Link 
+                            href={`/admin/grammar/edit/${item.id}`} 
+                            className="w-20 py-1.5 border border-gray-200 text-gray-700 bg-white hover:bg-black hover:text-white hover:border-black rounded-lg text-center text-xs font-bold transition-all shadow-2xs"
+                          >
+                            修改
+                          </Link>
+                          <button 
+                            onClick={() => handleDelete(item.id)} 
+                            className="w-20 py-1.5 border border-gray-200 text-red-500 bg-white hover:bg-red-50 hover:border-red-200 rounded-lg text-center text-xs font-bold transition-all shadow-2xs"
+                          >
+                            刪除
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* 底部精緻分頁區塊 */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-10 gap-1.5 items-center">
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3.5 py-2 border border-gray-200 rounded-xl font-bold bg-white text-xs text-gray-500 hover:bg-black hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-500 transition-all shadow-2xs"
+            >
+              上一頁
+            </button>
+
+            <div className="flex gap-1 p-1">
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
+                    currentPage === i + 1 
+                    ? 'bg-black text-white shadow-sm scale-105' 
+                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-3.5 py-2 border border-gray-200 rounded-xl font-bold bg-white text-xs text-gray-500 hover:bg-black hover:text-white disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-500 transition-all shadow-2xs"
+            >
+              下一頁
+            </button>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
