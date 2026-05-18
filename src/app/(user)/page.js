@@ -27,7 +27,7 @@ export default function Page() {
       </div>
       <h3 className="my-[20px] text-2xl font-bold text-gray-800">發音字母</h3>
       <p className="text-[16px] text-[#555] leading-[1.8]">
-        學習越南語最基礎的發音與字母拼 cấy，讓我們一步步掌握正確的越南語口音。
+        學習越南語最基礎的發音與字母，讓我們一步步掌握正確的越南語口音。
       </p>
     </a>
 

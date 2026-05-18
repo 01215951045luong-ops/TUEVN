@@ -181,11 +181,11 @@ export default function VocabPage() {
                   <div className="bg-[#fcfdfd] p-6 border-t border-teal-100 animate-fadeIn">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-5 bg-white rounded-2xl shadow-sm border-l-4 border-teal-500">
-                        <p className="text-[10px] font-black text-teal-500 uppercase mb-2">越南文例句</p>
+                        <p className="text-[15px] font-black text-teal-500 uppercase mb-2">越南文例句</p>
                         <p className="text-lg italic text-gray-700 leading-relaxed">{item.sentence_vn || "暫無資料"}</p>
                       </div>
                       <div className="p-5 bg-white rounded-2xl shadow-sm border-l-4 border-gray-300">
-                        <p className="text-[10px] font-black text-gray-400 uppercase mb-2">中文例句</p>
+                        <p className="text-[15px] font-black text-gray-400 uppercase mb-2">中文例句</p>
                         <p className="text-lg text-gray-600 leading-relaxed">{item.sentence_cn || "暫無資料"}</p>
                       </div>
                     </div>

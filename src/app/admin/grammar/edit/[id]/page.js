@@ -96,7 +96,7 @@ export default function EditGrammarPage() {
 
         {/* 越南文句子 */}
         <div className="space-y-2">
-          <label className="text-xl font-black text-slate-400 uppercase tracking-[0.2em] ml-2">越南文句子 (sentence_vn)</label>
+          <label className="text-xl font-black text-slate-400 uppercase tracking-[0.2em] ml-2">越南文句子</label>
           <textarea 
             rows="4"
             className="w-full text-lg font-bold text-slate-800 bg-slate-50 border-4 border-transparent focus:border-emerald-500 outline-none transition-all p-5 rounded-3xl shadow-inner" 
@@ -108,7 +108,7 @@ export default function EditGrammarPage() {
 
         {/* 中文翻譯 */}
         <div className="space-y-2">
-          <label className="text-xl font-black text-slate-400 uppercase tracking-[0.2em] ml-2">中文翻譯 (sentence_cn)</label>
+          <label className="text-xl font-black text-slate-400 uppercase tracking-[0.2em] ml-2">中文翻譯 </label>
           <textarea 
             rows="4"
             className="w-full text-lg font-bold text-slate-500 italic bg-slate-50 border-4 border-transparent focus:border-emerald-500 outline-none transition-all p-5 rounded-3xl shadow-inner" 

@@ -60,8 +60,8 @@ export default function MyVocabPage() {
     }
   };
 
+  // ✨ Đã loại bỏ hoàn toàn window.confirm để thực hiện xóa ngay lập tức
   const handleResetLearning = async (vocabularyId) => {
-    if (!window.confirm("您確定要重新學習這個單字嗎？")) return;
     try {
       const { error } = await supabase
         .from('user_vocabularies')
@@ -149,14 +149,14 @@ export default function MyVocabPage() {
           <div className="grid grid-cols-12 bg-gray-900 py-4 px-6 text-white font-bold text-[15px] tracking-[0.2em] uppercase">
             <div className="col-span-1">編號</div>
             <div className="col-span-4">越南文</div>
-            <div className="col-span-4">中文（繁體）</div>
+            <div className="col-span-4">中文</div>
             <div className="col-span-3 text-right">操作選項</div>
           </div>
 
           <div className="divide-y divide-gray-100">
             {filteredList.length === 0 ? (
               <div className="p-10 text-center text-gray-400 font-medium">
-                {searchTerm ? "找不到符合關鍵字的單字。" : "您目前尚未收藏任何單字。"}
+                {searchTerm ? "找不到符合關鍵字的單字。" : "您目前尚未收藏 any 單字。"}
               </div>
             ) : (
               filteredList.map((item, index) => (
