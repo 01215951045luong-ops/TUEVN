@@ -7,6 +7,7 @@ export default function VocabPage() {
   const [list, setList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
+  const [pageInput, setPageInput] = useState('1'); // Lưu giá trị ô nhập số trang
   const [openId, setOpenId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +25,7 @@ export default function VocabPage() {
 
   useEffect(() => {
     fetchData(currentPage);
+    setPageInput(currentPage.toString()); // Đồng bộ ô nhập số trang khi chuyển trang
   }, [currentPage, user]);
 
   const fetchData = async (page) => {
@@ -59,6 +61,17 @@ export default function VocabPage() {
       console.error("Lỗi lấy dữ liệu:", err.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handlePageSubmit = () => {
+    const pageNum = parseInt(pageInput, 10);
+    if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= lastPage) {
+      setCurrentPage(pageNum);
+      // Tự động cuộn mượt lên đầu trang sau khi chuyển trang ở dưới đáy
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setPageInput(currentPage.toString());
     }
   };
 
@@ -105,6 +118,48 @@ export default function VocabPage() {
     );
   });
 
+  // 📝 Tách giao diện thanh phân trang thành một hàm nhỏ để tái sử dụng ở cả TRÊN và DƯỚI
+  const renderPagination = () => (
+    <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
+      <button 
+        onClick={() => {
+          setCurrentPage(p => Math.max(p - 1, 1));
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }} 
+        disabled={currentPage === 1 || isLoading}
+        className="px-4 py-2 text-sm font-bold border rounded-lg bg-gray-50 hover:bg-gray-100 disabled:opacity-30 transition-all"
+      >
+        上一頁
+      </button>
+      
+      <div className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+        <span>第</span>
+        <input
+          type="number"
+          min="1"
+          max={lastPage}
+          value={pageInput}
+          onChange={(e) => setPageInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handlePageSubmit()}
+          onBlur={handlePageSubmit}
+          className="w-14 text-center p-1.5 border-2 border-teal-100 rounded-md focus:border-teal-500 outline-none font-bold text-teal-600 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+        <span>/ {lastPage} 頁</span>
+      </div>
+
+      <button 
+        onClick={() => {
+          setCurrentPage(p => Math.min(p + 1, lastPage));
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        disabled={currentPage === lastPage || isLoading}
+        className="px-4 py-2 text-sm font-bold bg-teal-600 text-white rounded-lg shadow-md hover:bg-teal-700 disabled:opacity-30 transition-all"
+      >
+        下一頁
+      </button>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 md:p-10 text-gray-800">
       <div className="max-w-7xl mx-auto">
@@ -117,7 +172,7 @@ export default function VocabPage() {
           <div className="relative">
             <input
               type="text"
-              placeholder="請輸入序號或單字進行搜尋..."
+              placeholder="請輸入序號 or 單字進行搜尋..."
               className="w-full border-2 border-teal-100 rounded-xl px-12 py-4 text-lg focus:border-teal-500 outline-none shadow-inner"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -126,25 +181,10 @@ export default function VocabPage() {
           </div>
         </div>
 
-        {/* 標題與分頁 */}
-        <div className="flex justify-between items-center mb-6 px-2">
+        {/* 【Thanh phân trang TRÊN】 標題與分頁 */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6 px-2">
           <h2 className="text-2xl font-black text-gray-900 uppercase">單字列表</h2>
-          <div className="flex gap-2">
-            <button 
-              onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} 
-              disabled={currentPage === 1 || isLoading}
-              className="px-4 py-2 bg-white border rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-30 transition-all"
-            >
-              上一頁
-            </button>
-            <button 
-              onClick={() => setCurrentPage(p => Math.min(p + 1, lastPage))}
-              disabled={currentPage === lastPage || isLoading}
-              className="px-4 py-2 bg-teal-600 text-white rounded-lg shadow-md hover:bg-teal-700 disabled:opacity-30 transition-all"
-            >
-              下一頁
-            </button>
-          </div>
+          {renderPagination()}
         </div>
 
         {/* 數據表格 */}
@@ -203,6 +243,12 @@ export default function VocabPage() {
             ))}
           </div>
         </div>
+
+        {/* 【Thanh phân trang DƯỚI】 Xuất hiện ngay dưới đáy bảng để bấm cho tiện */}
+        <div className="flex justify-end items-center mt-6 px-2">
+          {renderPagination()}
+        </div>
+
       </div>
     </div>
   );

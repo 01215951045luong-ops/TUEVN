@@ -79,8 +79,13 @@ export default function AdminLayout({ children }) {
               </Link>
             </div>
           </div>
+          <div>
+            <Link href="/admin/profiles" className={`block p-2 rounded-md text-sm transition ${isActive('/admin/profiles')}`}>
+              會員管理
+            </Link>
+          </div>
         </nav>
-
+          
         {/* 登出按鈕 - 固定於左下角 */}
         <div className="p-4 border-t border-slate-800">
           <button 

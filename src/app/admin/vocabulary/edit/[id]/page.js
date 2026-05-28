@@ -76,14 +76,16 @@ export default function EditVocabPage() {
         const fileName = `${Date.now()}.${fileExt}`;
         const filePath = `vocabulary/${fileName}`;
 
+        // 🎯 ĐÃ SỬA: Đổi từ 'audios' thành 'vocabularies' cho đúng với Supabase Storage
         const { error: uploadError } = await supabase.storage
-          .from('audios')
+          .from('vocabularies') 
           .upload(filePath, file);
 
         if (uploadError) throw uploadError;
 
+        // 🎯 ĐÃ SỬA: Đổi từ 'audios' thành 'vocabularies' ở đây luôn
         const { data: publicUrlData } = supabase.storage
-          .from('audios')
+          .from('vocabularies') 
           .getPublicUrl(filePath);
         
         currentAudioUrl = publicUrlData.publicUrl;

@@ -27,7 +27,7 @@ const Footer = () => {
 
         {/* Cột 3 */}
         <div className="footer-item">
-          <p className="font-bold text-[18px] mb-[20px] text-gray-800">聯絡 chúng tôi</p>
+          <p className="font-bold text-[18px] mb-[20px] text-gray-800">聯絡我們</p>
           <p className="text-[15px] font-light leading-[35px] text-gray-600">Facebook</p>
           <p className="text-[15px] font-light leading-[35px] text-gray-600">電話: 0970709886</p>
           <p className="text-[15px] font-light leading-[35px] text-gray-600" style={{ wordBreak: 'break-all' }}>
